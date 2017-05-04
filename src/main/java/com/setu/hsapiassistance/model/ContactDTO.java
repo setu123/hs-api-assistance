@@ -19,7 +19,8 @@ import java.util.Map;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
                            "vid",
-                           "properties"
+                           "properties",
+                           "form-submissions"
                    })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContactDTO
@@ -29,7 +30,14 @@ public class ContactDTO
 
     @JsonProperty("properties")
     private Map<String, Map<String, Object>> properties;
+    
+    @JsonProperty("form-submissions")
+    private List<Map<String, Object>> formSubmissions;
+    
+    @JsonProperty("hs_analytics_last_url")
+    private Map<String, Object> pageViewsWrapper;
 
+    private String email;
 
     public int getVid()
     {
@@ -78,5 +86,55 @@ public class ContactDTO
         return "";
     }
 
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        if(properties != null){
+            Map<String, Object> emailMap = properties.get("email");
+            email = (String) emailMap.get("value");
+        }
+        return email;
+    }
 
+    @Override
+    public String toString() {
+        return "ContactDTO{" + "vid=" + vid + ", email=" + getEmail() + '}';
+    }
+
+    /**
+     * @return the formSubmissions
+     */
+    public List<Map<String, Object>> getFormSubmissions() {
+        return formSubmissions;
+    }
+
+    /**
+     * @param formSubmissions the formSubmissions to set
+     */
+    public void setFormSubmissions(List<Map<String, Object>> formSubmissions) {
+        this.formSubmissions = formSubmissions;
+    }
+
+    /**
+     * @return the pageViews
+     */
+    public Map<String, Object> getPageViews() {
+        if(pageViewsWrapper != null){
+            return (Map<String, Object>) pageViewsWrapper.get("versions");
+        }
+        
+        return null;
+    }
+
+    /**
+     * @param pageViewsWrapper the pageViews to set
+     */
+    
+    public void setPageViews(Map<String, Object> pageViewsWrapper) {
+        System.out.println("setting pageviews");
+//        pageViews = (List<Map<String, Object>>) pageViewsWrapper.get("versions");
+    }
+
+    
 }

@@ -19,6 +19,7 @@ public class RestTemplate {
     }
 
     public <T extends Object> T getForObject(String url, Class<T> responseType) throws RestException {
+        System.out.println("Url to connect: " + url);
         try {
             String responseString = getResponseString(url);
             T responseObject = objectMapper.readValue(responseString, responseType);
@@ -33,8 +34,8 @@ public class RestTemplate {
         
         try {
             responseString = Request.Get(url)
-                    .connectTimeout(1000)
-                    .socketTimeout(1000)
+                    .connectTimeout(60000)
+                    .socketTimeout(60000)
                     .execute().returnContent().asString();
         } catch (IOException ex) {
             Logger.getLogger(RestTemplate.class.getName()).log(Level.SEVERE, null, ex);

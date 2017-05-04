@@ -1,7 +1,6 @@
 
 package com.setu.hsapiassistance.model.history;
 
-import com.setu.hsapiassistance.model.history.History;
 import java.util.Date;
 
 /**
@@ -9,15 +8,38 @@ import java.util.Date;
  * @author setu
  */
 public class PageViewHistory implements History{
+    private String url;
+    private Date date;
 
     @Override
     public Date getDate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return date;
     }
 
     @Override
     public String getAction() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "Visited " + url;
+    }
+
+    /**
+     * @return the url
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     * @param url the url to set
+     */
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    /**
+     * @param date the date to set
+     */
+    public void setDate(Date date) {
+        this.date = date;
     }
 
 }
