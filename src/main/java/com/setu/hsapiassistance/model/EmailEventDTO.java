@@ -1,17 +1,24 @@
 package com.setu.hsapiassistance.model;
 
 import java.util.Date;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 /**
  * @date May 4, 2017
  * @author setu
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EmailEventDTO {
 
     private String type;
     private Integer appId;
     private Long emailCampaignId;
     private Date created;
+    private String campaignName;
+
+    public String getCampaignName() {        
+        return campaignName;
+    }
 
     /**
      * @return the type
@@ -67,5 +74,12 @@ public class EmailEventDTO {
      */
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    /**
+     * @param campaignName the campaignName to set
+     */
+    public void setCampaignName(String campaignName) {
+        this.campaignName = campaignName;
     }
 }

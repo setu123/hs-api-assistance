@@ -9,13 +9,13 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author setu
  */
 public class EmailEventListDTO {
-    @JsonProperty("contacts")
+    @JsonProperty("events")
     private List<EmailEventDTO> events;
 
-    @JsonProperty("vid-offset")
-    private Long vidOffset;
+    @JsonProperty("offset")
+    private String offset;
 
-    @JsonProperty("has-more")
+    @JsonProperty("hasMore")
     private boolean hasMore;
 
     /**
@@ -35,15 +35,15 @@ public class EmailEventListDTO {
     /**
      * @return the vidOffset
      */
-    public Long getVidOffset() {
-        return vidOffset;
+    public String getOffset() {
+        return offset;
     }
 
     /**
      * @param vidOffset the vidOffset to set
      */
-    public void setVidOffset(Long vidOffset) {
-        this.vidOffset = vidOffset;
+    public void setOffset(String offset) {
+        this.offset = offset;
     }
 
     /**

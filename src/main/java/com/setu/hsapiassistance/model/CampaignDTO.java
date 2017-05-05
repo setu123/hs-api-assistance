@@ -1,10 +1,13 @@
 
 package com.setu.hsapiassistance.model;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 /**
  * @date May 4, 2017
  * @author setu
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CampaignDTO {
     private Long id;
     private String name;

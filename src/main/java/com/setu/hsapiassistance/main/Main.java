@@ -1,10 +1,8 @@
 package com.setu.hsapiassistance.main;
 
-import com.setu.hsapiassistance.model.ContactDTO;
 import com.setu.hsapiassistance.model.history.History;
 import com.setu.hsapiassistance.service.HistoryFinderService;
-import com.setu.hsapiassistance.service.api.ApiAssistant;
-import com.setu.hsapiassistance.service.api.ApiAssistantImpl;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,12 +13,25 @@ public class Main {
 
     public static void main(String[] args) {
         String apiKey = "";
-        ApiAssistant apiAssistant = new ApiAssistantImpl(apiKey);
+        
+        if(args.length > 0)
+            apiKey = args[0];
+        else if(System.getProperty("HUBSPOT_API_KEY") != null)
+            apiKey = System.getProperty("HUBSPOT_API_KEY");
+        
+        System.out.println("api_key: " + System.getProperty("HUBSPOT_API_KEY"));
+        
         String email = "luca.sintini@saipem.com";
-        ContactDTO contactDTO = apiAssistant.getContactByEmail(email);
-        HistoryFinderService service = new HistoryFinderService();
-        List<History> historyList = service.getAllHistory(contactDTO);
-//        System.out.println("contact= " + contactDTO);
+        HistoryFinderService service = new HistoryFinderService(apiKey);
+        List<History> historyList = service.getAllHistory(email);
+        
+        for(History history: historyList){
+            System.out.println("date; " + history.getDate() + ", action: " + history.getAction());
+        }
+        
+        System.out.println("After sorting....");
+        
+        Collections.sort(historyList);
         
         for(History history: historyList){
             System.out.println("date; " + history.getDate() + ", action: " + history.getAction());

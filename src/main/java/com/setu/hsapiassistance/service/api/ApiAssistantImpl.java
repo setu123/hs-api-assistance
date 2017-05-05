@@ -44,16 +44,40 @@ public class ApiAssistantImpl implements ApiAssistant{
 
     @Override
     public EmailEventListDTO getEmailEventList(String email) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EmailEventListDTO emailEventList = null;
+        try {
+            String url = getEmailEventListUrl(email);
+            emailEventList = restTemplate.getForObject(url, EmailEventListDTO.class);
+        } catch (RestException ex) {
+            System.err.println("RestException caught: " + ex.getMessage());
+        }
+        
+        return emailEventList;
     }
 
     @Override
     public CampaignDTO getCampaign(Integer appId, Long campaignId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        CampaignDTO campaign = null;
+        
+        try {            
+            String url = getCampaignUrl(appId, campaignId);
+            campaign = restTemplate.getForObject(url, CampaignDTO.class);
+        } catch (RestException ex) {
+            System.err.println("RestException caught: " + ex.getMessage());
+        }
+        
+        return campaign;
     }
     
     private String getContactByEmailUrl(String email){
         return BASE_URL + "/contacts/v1/contact/email" + "/" + email + "/profile" + "?hapikey=" + apiKey;
     }
-
+    
+    private String  getEmailEventListUrl(String email){
+        return BASE_URL + "/email/public/v1/events" + "?hapikey=" + apiKey + "&recipient=" + email;
+    }
+    
+    private String getCampaignUrl(Integer appId, Long campaignId){
+        return BASE_URL + "/email/public/v1/campaigns/" + campaignId + "?hapikey=" + apiKey + "&appId=" + appId;
+    }
 }

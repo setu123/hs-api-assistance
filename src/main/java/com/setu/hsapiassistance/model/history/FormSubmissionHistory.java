@@ -8,7 +8,7 @@ import java.util.Date;
  * @date May 4, 2017
  * @author setu
  */
-public class FormSubmissionHistory implements History{
+public class FormSubmissionHistory extends History{
     private Date date;
     private String pageUrl;
     private String title;

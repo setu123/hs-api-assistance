@@ -34,8 +34,7 @@ public class ContactDTO
     @JsonProperty("form-submissions")
     private List<Map<String, Object>> formSubmissions;
     
-    @JsonProperty("hs_analytics_last_url")
-    private Map<String, Object> pageViewsWrapper;
+    private List<Map<String, Object>> pageViews;
 
     private String email;
 
@@ -119,22 +118,12 @@ public class ContactDTO
     /**
      * @return the pageViews
      */
-    public Map<String, Object> getPageViews() {
-        if(pageViewsWrapper != null){
-            return (Map<String, Object>) pageViewsWrapper.get("versions");
+    public List<Map<String, Object>> getPageViews() {
+        Map<String, Object> lastUrl = properties.get("hs_analytics_last_url");
+        if(lastUrl != null){
+            pageViews = (List<Map<String, Object>>) lastUrl.get("versions");
         }
         
-        return null;
-    }
-
-    /**
-     * @param pageViewsWrapper the pageViews to set
-     */
-    
-    public void setPageViews(Map<String, Object> pageViewsWrapper) {
-        System.out.println("setting pageviews");
-//        pageViews = (List<Map<String, Object>>) pageViewsWrapper.get("versions");
-    }
-
-    
+        return pageViews;
+    }    
 }
