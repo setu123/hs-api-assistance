@@ -1,7 +1,6 @@
 
 package com.setu.hsapiassistance.model.history;
 
-import com.setu.hsapiassistance.model.history.History;
 import java.util.Date;
 
 /**
@@ -12,6 +11,7 @@ public class FormSubmissionHistory extends History{
     private Date date;
     private String pageUrl;
     private String title;
+    private String email;
 
     @Override
     public Date getDate() {
@@ -56,6 +56,21 @@ public class FormSubmissionHistory extends History{
      */
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    /**
+     * @return the email
+     */
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }

@@ -8,6 +8,8 @@ import java.util.Date;
  */
 public abstract class History implements Comparable<History> {
 
+    public abstract String getEmail();
+
     public abstract Date getDate();
 
     public abstract String getAction();

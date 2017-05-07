@@ -11,12 +11,14 @@ import com.setu.hsapiassistance.model.ContactDTO;
 import com.setu.hsapiassistance.model.EmailEventDTO;
 import com.setu.hsapiassistance.model.EmailEventListDTO;
 import com.setu.hsapiassistance.model.history.EmailEventHistory;
+import com.setu.hsapiassistance.model.history.EmailEventHistory.EventType;
 import com.setu.hsapiassistance.model.history.FormSubmissionHistory;
 import com.setu.hsapiassistance.model.history.History;
 import com.setu.hsapiassistance.model.history.PageViewHistory;
 import com.setu.hsapiassistance.service.api.ApiAssistant;
 import com.setu.hsapiassistance.service.api.ApiAssistantImpl;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +37,7 @@ public class HistoryFinderService {
     
     public List<History> getAllHistory(String email){
         ContactDTO contactDTO = apiAssistant.getContactByEmail(email);
-        
-        List<History> allHistory = new ArrayList<>();
-        allHistory.addAll(getFormSubmissionHistories(contactDTO));
-        allHistory.addAll(getPageViewHistories(contactDTO));
-        allHistory.addAll(getEmailEventHistories(contactDTO));
-        return allHistory;
+        return getAllHistory(contactDTO);
     }
     
     public List<History> getAllHistory(ContactDTO contactDTO){
@@ -48,6 +45,10 @@ public class HistoryFinderService {
         allHistory.addAll(getFormSubmissionHistories(contactDTO));
         allHistory.addAll(getPageViewHistories(contactDTO));
         allHistory.addAll(getEmailEventHistories(contactDTO));
+        
+        Collections.sort(allHistory);
+        Collections.reverse(allHistory);
+        
         return allHistory;
     }
     
@@ -60,6 +61,7 @@ public class HistoryFinderService {
             history.setDate(new Date(timestamp));
             history.setTitle((String) submission.get("title"));
             history.setPageUrl((String) submission.get("page-url"));
+            history.setEmail(contactDTO.getEmail());
             submissionHistoryList.add(history);
         }
         return submissionHistoryList;
@@ -73,6 +75,7 @@ public class HistoryFinderService {
             Long timestamp = (Long) pageView.get("timestamp");
             history.setDate(new Date(timestamp));
             history.setUrl((String) pageView.get("value"));
+            history.setEmail(contactDTO.getEmail());
             
             if(history.getUrl()!=null && !history.getUrl().isEmpty())
                 pageViewList.add(history);
@@ -85,18 +88,33 @@ public class HistoryFinderService {
         List<History> emailEventHistoryList = new ArrayList<>();
         
         for(EmailEventDTO emailEvent: emailEventList.getEvents()){
+            
+            if(!isRequiredEmailEvent(emailEvent))
+                continue;
+            
             CampaignDTO campaignDTO = apiAssistant.getCampaign(emailEvent.getAppId(), emailEvent.getEmailCampaignId());
             emailEvent.setCampaignName(campaignDTO.getName());
             EmailEventHistory history = new EmailEventHistory();
             history.setDate(emailEvent.getCreated());
             history.setEventType(emailEvent.getType());
             history.setCampaignName(campaignDTO.getName());
+            history.setEmail(contactDTO.getEmail());
             
             if(history.getEventType() != null)
                 emailEventHistoryList.add(history);
         }
         
         return emailEventHistoryList;
+    }
+    
+    private boolean isRequiredEmailEvent(EmailEventDTO emailEvent){
+        
+        for(EventType eventType: EmailEventHistory.EventType.values()){
+            if(eventType.toString().equals(emailEvent.getType()))
+                return true;
+        }
+        
+        return false;
     }
     
 }

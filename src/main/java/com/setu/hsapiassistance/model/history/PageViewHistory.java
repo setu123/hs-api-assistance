@@ -10,6 +10,7 @@ import java.util.Date;
 public class PageViewHistory extends History{
     private String url;
     private Date date;
+    private String email;
 
     @Override
     public Date getDate() {
@@ -40,6 +41,21 @@ public class PageViewHistory extends History{
      */
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    /**
+     * @return the email
+     */
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }

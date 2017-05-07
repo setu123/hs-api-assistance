@@ -19,7 +19,7 @@ public class RestTemplate {
     }
 
     public <T extends Object> T getForObject(String url, Class<T> responseType) throws RestException {
-        System.out.println("Url to connect: " + url);
+//        System.out.println("Url to connect: " + url);
         try {
             String responseString = getResponseString(url);
             T responseObject = objectMapper.readValue(responseString, responseType);

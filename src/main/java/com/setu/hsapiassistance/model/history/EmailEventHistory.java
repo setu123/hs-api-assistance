@@ -11,6 +11,7 @@ public class EmailEventHistory extends History{
     private Date date;
     private EventType eventType;
     private String campaignName;
+    private String email;
 
     /**
      * @param date the date to set
@@ -64,11 +65,26 @@ public class EmailEventHistory extends History{
         String action = null;
         
         if(EventType.OPEN.equals(eventType))
-            action = "Opened " + campaignName;
+            action = "Opened email " + campaignName;
         else if(EventType.CLICK.equals(eventType))
-            action = "Clicked " + campaignName;
+            action = "Clicked email " + campaignName;
         
         return action;
+    }
+
+    /**
+     * @return the email
+     */
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }
