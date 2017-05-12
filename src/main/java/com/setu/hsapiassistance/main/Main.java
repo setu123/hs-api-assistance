@@ -33,6 +33,10 @@ public class Main {
 
         if(params.get("contacts") != null)
             service.generateTimelineReport(params.get("contacts"));
+        else if(params.get("list") != null){
+            int max = Integer.parseInt(params.get("max"));
+            service.generateTimelineReportByListId(params.get("list"), max);
+        }
         
         printElapsedTime(startTime);
     }
@@ -70,6 +74,8 @@ public class Main {
 
     private static Map<String, String> getParams(String[] args) {
         Map<String, String> parameterMap = new HashMap<>();
+        setDefaultParams(parameterMap);
+        
         for (String arg : args) {
             String[] keyPair = arg.split("=");
             if (keyPair.length != 2) {
@@ -80,5 +86,9 @@ public class Main {
         }
 
         return parameterMap;
+    }
+    
+    private static void setDefaultParams(Map<String, String> parameterMap){
+        parameterMap.put("max", "3000");
     }
 }

@@ -52,6 +52,46 @@ public class HistoryFinderService {
         return allHistory;
     }
     
+    public List<History> getAllHistoryByListId(String listId, int max){
+        List<String> emails = getEmailsForList(listId);
+        Collections.sort(emails);
+        List<History> allHistory = new ArrayList<>();
+        
+        for(int i=0; i<emails.size(); i++){
+            
+            if(i >= max)
+                break;
+            
+            String email = emails.get(i);
+            List<History> singleContactHistory = getAllHistory(email);
+            allHistory.addAll(singleContactHistory);
+        }
+        
+        return allHistory;
+    }
+    
+    private List<String> getEmailsForList(String listId){
+        List<Object> contacts = apiAssistant.getContactsByListId(listId);
+        List<String> emails = new ArrayList<>();
+        
+        outerloop:
+        for(Object obj: contacts){
+            Map<String, Object> contactMap = (Map<String, Object>) obj;
+            List<Object> identityProfiles = (List<Object>) contactMap.get("identity-profiles");
+            List<Map<String, Object>> identities = (List<Map<String, Object>>) ((Map<String, Object>)identityProfiles.get(0)).get("identities");
+            
+            for(Map<String, Object> identity: identities){
+                String type = (String) identity.get("type");
+                if("EMAIL".equals(type)){
+                    emails.add((String) identity.get("value"));
+                    continue outerloop;
+                }
+            }
+        }
+        
+        return emails;
+    }
+    
     public List<History> getFormSubmissionHistories(ContactDTO contactDTO){
         List<Map<String, Object>> formSubmissions = (List) contactDTO.getFormSubmissions();
         List<History> submissionHistoryList = new ArrayList<>();

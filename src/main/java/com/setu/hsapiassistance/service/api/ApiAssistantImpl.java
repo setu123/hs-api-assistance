@@ -7,6 +7,9 @@ import com.setu.hsapiassistance.model.ContactsListDTO;
 import com.setu.hsapiassistance.model.EmailEventListDTO;
 import com.setu.hsapiassistance.service.api.http.RestException;
 import com.setu.hsapiassistance.service.api.http.RestTemplate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @date May 4, 2017
@@ -69,6 +72,21 @@ public class ApiAssistantImpl implements ApiAssistant{
         return campaign;
     }
     
+    @Override
+    public List<Object> getContactsByListId(String listId) {
+        List contacts = new ArrayList();
+        
+        try {            
+            String url = getContactsByListIdUrl(listId);
+            Map<String, List<Object>> contactsMap = restTemplate.getForObject(url, Map.class);
+            contacts = contactsMap.get("contacts");
+        } catch (RestException ex) {
+            System.err.println("RestException caught: " + ex.getMessage());
+        }
+        
+        return contacts;
+    }
+    
     private String getContactByEmailUrl(String email){
         return BASE_URL + "/contacts/v1/contact/email" + "/" + email + "/profile" + "?hapikey=" + apiKey;
     }
@@ -79,5 +97,9 @@ public class ApiAssistantImpl implements ApiAssistant{
     
     private String getCampaignUrl(Integer appId, Long campaignId){
         return BASE_URL + "/email/public/v1/campaigns/" + campaignId + "?hapikey=" + apiKey + "&appId=" + appId;
+    }
+
+    private String getContactsByListIdUrl(String listId){
+        return BASE_URL + "/contacts/v1/lists/" + listId + "/contacts/all" + "?hapikey=" + apiKey;
     }
 }

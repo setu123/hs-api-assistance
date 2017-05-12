@@ -40,6 +40,24 @@ public class ApiAssistanceService {
         
         return success;
     }
+    
+    public boolean generateTimelineReportByListId(String listId, int max) {
+        boolean success = false;
+        
+        HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
+        List<History> histories = historyFinderService.getAllHistoryByListId(listId, max);
+        ReportService reportService = new ReportService();
+        Workbook wb = reportService.createReport(histories);
+        
+        try {
+            createFile(wb);
+            success = true;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+        
+        return success;
+    }
 
     private void createFile(Workbook wb) throws IOException {
         try (FileOutputStream fileOut = new FileOutputStream("Timeline.xls")) {
