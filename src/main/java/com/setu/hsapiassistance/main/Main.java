@@ -36,6 +36,9 @@ public class Main {
         else if(params.get("list") != null){
             int max = Integer.parseInt(params.get("max"));
             service.generateTimelineReportByListId(params.get("list"), max);
+        }else if(params.get("csv") != null){
+            int max = Integer.parseInt(params.get("max"));
+            service.generateTimelineReportByCSVEmailList(params.get("csv"), max);
         }
         
         printElapsedTime(startTime);

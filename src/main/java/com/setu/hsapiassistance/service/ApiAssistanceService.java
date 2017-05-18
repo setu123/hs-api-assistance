@@ -25,37 +25,46 @@ public class ApiAssistanceService {
 
     public boolean generateTimelineReport(String email) {
         boolean success = false;
-        
+
         HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
         List<History> histories = historyFinderService.getAllHistory(email);
         ReportService reportService = new ReportService();
         Workbook wb = reportService.createReport(histories);
-        
+
         try {
             createFile(wb);
             success = true;
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage());
         }
-        
+
         return success;
     }
-    
+
     public boolean generateTimelineReportByListId(String listId, int max) {
-        boolean success = false;
-        
         HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
         List<History> histories = historyFinderService.getAllHistoryByListId(listId, max);
+        return generateReport(histories);
+    }
+
+    public boolean generateTimelineReportByCSVEmailList(String csvFileName, int max) {
+        HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
+        List<History> histories = historyFinderService.getAllHistoryByCSVEmailList(csvFileName, max);
+        return generateReport(histories);
+    }
+
+    private boolean generateReport(List<History> histories) {
+        boolean success = false;
         ReportService reportService = new ReportService();
         Workbook wb = reportService.createReport(histories);
-        
+
         try {
             createFile(wb);
             success = true;
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage());
         }
-        
+
         return success;
     }
 
