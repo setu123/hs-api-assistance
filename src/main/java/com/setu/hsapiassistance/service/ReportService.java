@@ -54,7 +54,7 @@ public class ReportService {
     }
     
     private String getFormattedDate(Date date){
-        String datePattern = "MM/dd/yyyy";
+        String datePattern = "MM/dd/yyyy hh:mm a";
         
         DateFormat dateFormat = new SimpleDateFormat(datePattern);
         return dateFormat.format(date);
