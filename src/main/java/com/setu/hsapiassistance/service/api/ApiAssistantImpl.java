@@ -47,12 +47,24 @@ public class ApiAssistantImpl implements ApiAssistant{
 
     @Override
     public EmailEventListDTO getEmailEventList(String email) {
+        
+        return getEmailEventList(email, null);
+    }
+        
+    private EmailEventListDTO getEmailEventList(String email, String offset) {
         EmailEventListDTO emailEventList = null;
         try {
-            String url = getEmailEventListUrl(email);
+            String url = getEmailEventListUrl(email, offset);
             emailEventList = restTemplate.getForObject(url, EmailEventListDTO.class);
         } catch (RestException ex) {
             System.err.println("RestException caught: " + ex.getMessage());
+        }
+        
+        if(emailEventList!=null && emailEventList.isHasMore()){
+            offset = emailEventList.getOffset();
+            EmailEventListDTO nestedEmailEventList = getEmailEventList(email, offset);
+            if(nestedEmailEventList != null)
+                emailEventList.getEvents().addAll(nestedEmailEventList.getEvents());
         }
         
         return emailEventList;
@@ -91,8 +103,9 @@ public class ApiAssistantImpl implements ApiAssistant{
         return BASE_URL + "/contacts/v1/contact/email" + "/" + email + "/profile" + "?hapikey=" + apiKey;
     }
     
-    private String  getEmailEventListUrl(String email){
-        return BASE_URL + "/email/public/v1/events" + "?hapikey=" + apiKey + "&recipient=" + email;
+    private String  getEmailEventListUrl(String email, String offset){
+        String offsetToAppend = (offset==null) ? "":"&offset="+offset;
+        return BASE_URL + "/email/public/v1/events" + "?hapikey=" + apiKey + "&recipient=" + email + offsetToAppend;
     }
     
     private String getCampaignUrl(Integer appId, Long campaignId){

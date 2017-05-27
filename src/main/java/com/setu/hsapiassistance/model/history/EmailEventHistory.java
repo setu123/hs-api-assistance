@@ -35,6 +35,8 @@ public class EmailEventHistory extends History{
             eventType = EventType.OPEN;
         else if(EventType.CLICK.toString().equals(eventTypeString))
             eventType = EventType.CLICK;
+        else if(EventType.SENT.toString().equals(eventTypeString))
+            eventType = EventType.SENT;
     }
 
     /**
@@ -52,7 +54,7 @@ public class EmailEventHistory extends History{
     }
     
     public enum EventType{
-        OPEN, CLICK 
+        OPEN, CLICK, SENT 
     }
 
     @Override
@@ -64,10 +66,20 @@ public class EmailEventHistory extends History{
     public String getAction() {
         String action = null;
         
-        if(EventType.OPEN.equals(eventType))
-            action = "Opened email " + campaignName;
-        else if(EventType.CLICK.equals(eventType))
-            action = "Clicked email " + campaignName;
+        if(null != eventType)
+            switch (eventType) {
+            case OPEN:
+                action = "Opened email " + campaignName;
+                break;
+            case CLICK:
+                action = "Clicked email " + campaignName;
+                break;
+            case SENT:
+                action = "Was sent email " + campaignName;
+                break;
+            default:
+                break;
+        }
         
         return action;
     }
