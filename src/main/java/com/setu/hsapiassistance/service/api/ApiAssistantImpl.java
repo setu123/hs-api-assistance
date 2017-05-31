@@ -91,7 +91,9 @@ public class ApiAssistantImpl implements ApiAssistant{
         try {            
             String url = getContactsByListIdUrl(listId);
             Map<String, List<Object>> contactsMap = restTemplate.getForObject(url, Map.class);
-            contacts = contactsMap.get("contacts");
+            
+            if(contactsMap != null)
+                contacts = contactsMap.get("contacts");
         } catch (RestException ex) {
             System.err.println("RestException caught: " + ex.getMessage());
         }

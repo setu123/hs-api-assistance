@@ -42,7 +42,11 @@ public class HistoryFinderService {
 
     public List<History> getAllHistory(String email) {
         ContactDTO contactDTO = apiAssistant.getContactByEmail(email);
-        return getAllHistory(contactDTO);
+        
+        if(contactDTO != null)
+            return getAllHistory(contactDTO);
+        else
+            return new ArrayList<>();
     }
 
     public List<History> getAllHistory(ContactDTO contactDTO) {
