@@ -16,12 +16,10 @@ import com.setu.hsapiassistance.model.history.History;
 import com.setu.hsapiassistance.model.history.PageViewHistory;
 import com.setu.hsapiassistance.service.api.ApiAssistant;
 import com.setu.hsapiassistance.service.api.ApiAssistantImpl;
+import com.setu.hsapiassistance.service.api.http.APILimitExceededException;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -40,7 +38,7 @@ public class HistoryFinderService {
         apiAssistant = new ApiAssistantImpl(apiKey);
     }
 
-    public List<History> getAllHistory(String email) {
+    public List<History> getAllHistory(String email) throws APILimitExceededException {
         ContactDTO contactDTO = apiAssistant.getContactByEmail(email);
         
         if(contactDTO != null)
@@ -49,7 +47,7 @@ public class HistoryFinderService {
             return new ArrayList<>();
     }
 
-    public List<History> getAllHistory(ContactDTO contactDTO) {
+    public List<History> getAllHistory(ContactDTO contactDTO) throws APILimitExceededException {
         List<History> allHistory = new ArrayList<>();
         allHistory.addAll(getFormSubmissionHistories(contactDTO));
         allHistory.addAll(getPageViewHistories(contactDTO));
@@ -61,17 +59,17 @@ public class HistoryFinderService {
         return allHistory;
     }
 
-    public List<History> getAllHistoryByListId(String listId, int max) {
+    public List<History> getAllHistoryByListId(String listId, int max) throws APILimitExceededException {
         List<String> emails = getEmailsForList(listId);
         return getHistoryList(emails, max);
     }
 
-    public List<History> getAllHistoryByCSVEmailList(String csvFileName, int max) {
+    public List<History> getAllHistoryByCSVEmailList(String csvFileName, int max) throws APILimitExceededException {
         List<String> emails = getEmailsFromCSV(csvFileName);
         return getHistoryList(emails, max);
     }
 
-    private List<History> getHistoryList(List<String> emails, int max) {
+    private List<History> getHistoryList(List<String> emails, int max) throws APILimitExceededException {
         Collections.sort(emails);
         List<History> allHistory = new ArrayList<>();
 
@@ -89,7 +87,7 @@ public class HistoryFinderService {
         return allHistory;
     }
 
-    private List<String> getEmailsForList(String listId) {
+    private List<String> getEmailsForList(String listId) throws APILimitExceededException {
         List<Object> contacts = apiAssistant.getContactsByListId(listId);
         List<String> emails = new ArrayList<>();
 
@@ -163,7 +161,7 @@ public class HistoryFinderService {
         return pageViewList;
     }
 
-    public List<History> getEmailEventHistories(ContactDTO contactDTO) {
+    public List<History> getEmailEventHistories(ContactDTO contactDTO) throws APILimitExceededException {
         EmailEventListDTO emailEventList = apiAssistant.getEmailEventList(contactDTO.getEmail());
         List<History> emailEventHistoryList = new ArrayList<>();
 

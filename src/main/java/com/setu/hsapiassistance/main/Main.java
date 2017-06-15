@@ -1,6 +1,8 @@
 package com.setu.hsapiassistance.main;
 
+import com.setu.hsapiassistance.model.APIUsageLimitDTO;
 import com.setu.hsapiassistance.service.ApiAssistanceService;
+import com.setu.hsapiassistance.service.api.http.APILimitExceededException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,36 +14,57 @@ import java.util.Map;
 public class Main {
 
     public static void main(String[] args) {
+        ApiAssistanceService service = null;
 
-        Date startTime = new Date();
-        
-        Map<String, String> params = getParams(args);
-
-        if (params.get("key") == null) {
-            String systemApiKey = System.getProperty("HUBSPOT_API_KEY");
-            if (systemApiKey != null) {
-                params.put("key", systemApiKey);
+        try {
+            Date startTime = new Date();
+            
+            Map<String, String> params = getParams(args);
+            
+            if (params.get("key") == null) {
+                String systemApiKey = System.getProperty("HUBSPOT_API_KEY");
+                if (systemApiKey != null) {
+                    params.put("key", systemApiKey);
+                }
             }
+            
+            if (params.get("key") == null) {
+                System.out.println("Api key is missing. Please try again");
+                System.exit(0);
+            }
+            
+            service = new ApiAssistanceService(params.get("key"));
+            
+            if(params.get("contacts") != null)
+                service.generateTimelineReport(params.get("contacts"));
+            else if(params.get("list") != null){
+                int max = Integer.parseInt(params.get("max"));
+                service.generateTimelineReportByListId(params.get("list"), max);
+            }else if(params.get("csv") != null){
+                int max = Integer.parseInt(params.get("max"));
+                service.generateTimelineReportByCSVEmailList(params.get("csv"), max);
+            }else if(params.get("show") != null){
+                showUsage(service);
+                System.exit(0);
+            }
+            
+            printElapsedTime(startTime);
+        } catch (APILimitExceededException ex) {
+            showUsageLimitExceedMessage(service);
         }
-
-        if (params.get("key") == null) {
-            System.out.println("Api key is missing. Please try again");
-            System.exit(0);
-        }
-
-        ApiAssistanceService service = new ApiAssistanceService(params.get("key"));
-
-        if(params.get("contacts") != null)
-            service.generateTimelineReport(params.get("contacts"));
-        else if(params.get("list") != null){
-            int max = Integer.parseInt(params.get("max"));
-            service.generateTimelineReportByListId(params.get("list"), max);
-        }else if(params.get("csv") != null){
-            int max = Integer.parseInt(params.get("max"));
-            service.generateTimelineReportByCSVEmailList(params.get("csv"), max);
-        }
-        
-        printElapsedTime(startTime);
+    }
+    
+    private static void showUsage(ApiAssistanceService service){
+        APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
+        String usage = "Daily limit: " + usageDTO.getUsageLimit() + "\n";
+        usage += "Current usage: " + usageDTO.getCurrentUsage() + "\n";
+        usage += "Next reset at: " + new Date(usageDTO.getResetsAt());
+        System.out.println(usage);
+    }
+    
+    private static void showUsageLimitExceedMessage(ApiAssistanceService service){
+        APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
+        System.out.println("API usage limit has been exceeded for the day. Limit will be reset at " + new Date(usageDTO.getResetsAt()));
     }
     
     private static void printElapsedTime(Date startTime){
@@ -92,6 +115,6 @@ public class Main {
     }
     
     private static void setDefaultParams(Map<String, String> parameterMap){
-        parameterMap.put("max", "3000");
+        parameterMap.put("max", "4500");
     }
 }

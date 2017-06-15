@@ -5,7 +5,11 @@
  */
 package com.setu.hsapiassistance.service;
 
+import com.setu.hsapiassistance.model.APIUsageLimitDTO;
 import com.setu.hsapiassistance.model.history.History;
+import com.setu.hsapiassistance.service.api.ApiAssistant;
+import com.setu.hsapiassistance.service.api.ApiAssistantImpl;
+import com.setu.hsapiassistance.service.api.http.APILimitExceededException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +27,7 @@ public class ApiAssistanceService {
         this.apiKey = apiKey;
     }
 
-    public boolean generateTimelineReport(String email) {
+    public boolean generateTimelineReport(String email) throws APILimitExceededException {
         boolean success = false;
 
         HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
@@ -41,16 +45,21 @@ public class ApiAssistanceService {
         return success;
     }
 
-    public boolean generateTimelineReportByListId(String listId, int max) {
+    public boolean generateTimelineReportByListId(String listId, int max) throws APILimitExceededException {
         HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
         List<History> histories = historyFinderService.getAllHistoryByListId(listId, max);
         return generateReport(histories);
     }
 
-    public boolean generateTimelineReportByCSVEmailList(String csvFileName, int max) {
+    public boolean generateTimelineReportByCSVEmailList(String csvFileName, int max) throws APILimitExceededException {
         HistoryFinderService historyFinderService = new HistoryFinderService(apiKey);
         List<History> histories = historyFinderService.getAllHistoryByCSVEmailList(csvFileName, max);
         return generateReport(histories);
+    }
+    
+    public APIUsageLimitDTO getAPIUsageLimit(){
+        ApiAssistant apiAssistant = new ApiAssistantImpl(apiKey);
+        return apiAssistant.getAPIUsageLimit();
     }
 
     private boolean generateReport(List<History> histories) {

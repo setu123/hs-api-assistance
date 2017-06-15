@@ -1,15 +1,19 @@
 
 package com.setu.hsapiassistance.service.api;
 
+import com.setu.hsapiassistance.model.APIUsageLimitDTO;
 import com.setu.hsapiassistance.model.CampaignDTO;
 import com.setu.hsapiassistance.model.ContactDTO;
-import com.setu.hsapiassistance.model.ContactsListDTO;
 import com.setu.hsapiassistance.model.EmailEventListDTO;
+import com.setu.hsapiassistance.service.api.http.APILimitExceededException;
 import com.setu.hsapiassistance.service.api.http.RestException;
 import com.setu.hsapiassistance.service.api.http.RestTemplate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.codehaus.jackson.map.type.CollectionType;
+import org.codehaus.jackson.map.type.TypeFactory;
 
 /**
  * @date May 4, 2017
@@ -20,15 +24,16 @@ public class ApiAssistantImpl implements ApiAssistant{
     
     private final String apiKey;
     private static final String BASE_URL = "http://api.hubapi.com";
+    private Map<String, CampaignDTO> campaignCache;
 
     public ApiAssistantImpl(String apiKey) {
         this.apiKey = apiKey;
         restTemplate = new RestTemplate();
-        
+        campaignCache = new HashMap<>();
     }
 
     @Override
-    public ContactDTO getContactByEmail(String email) {
+    public ContactDTO getContactByEmail(String email) throws APILimitExceededException {
         ContactDTO contact = null;
         try {
             String url = getContactByEmailUrl(email);
@@ -40,18 +45,18 @@ public class ApiAssistantImpl implements ApiAssistant{
         return contact;
     }
 
-    @Override
-    public ContactsListDTO getContactList(Integer offset) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public ContactsListDTO getContactList(Integer offset) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     @Override
-    public EmailEventListDTO getEmailEventList(String email) {
+    public EmailEventListDTO getEmailEventList(String email) throws APILimitExceededException {
         
         return getEmailEventList(email, null);
     }
         
-    private EmailEventListDTO getEmailEventList(String email, String offset) {
+    private EmailEventListDTO getEmailEventList(String email, String offset) throws APILimitExceededException {
         EmailEventListDTO emailEventList = null;
         try {
             String url = getEmailEventListUrl(email, offset);
@@ -71,7 +76,11 @@ public class ApiAssistantImpl implements ApiAssistant{
     }
 
     @Override
-    public CampaignDTO getCampaign(Integer appId, Long campaignId) {
+    public CampaignDTO getCampaign(Integer appId, Long campaignId) throws APILimitExceededException {
+        String campaignCacheKey = appId + "_" + campaignId;
+        if(campaignCache.get(campaignCacheKey) != null)
+            return campaignCache.get(campaignCacheKey);
+        
         CampaignDTO campaign = null;
         
         try {            
@@ -81,11 +90,14 @@ public class ApiAssistantImpl implements ApiAssistant{
             System.err.println("RestException caught: " + ex.getMessage());
         }
         
+        if(campaign != null)
+            campaignCache.put(campaignCacheKey, campaign);
+        
         return campaign;
     }
     
     @Override
-    public List<Object> getContactsByListId(String listId) {
+    public List<Object> getContactsByListId(String listId) throws APILimitExceededException {
         List contacts = new ArrayList();
         
         try {            
@@ -116,5 +128,24 @@ public class ApiAssistantImpl implements ApiAssistant{
 
     private String getContactsByListIdUrl(String listId){
         return BASE_URL + "/contacts/v1/lists/" + listId + "/contacts/all" + "?hapikey=" + apiKey;
+    }
+    
+    private String getAPILimitUrl(){
+        return BASE_URL + "/integrations/v1/limit/daily" + "?hapikey=" + apiKey;
+    }
+
+    @Override
+    public APIUsageLimitDTO getAPIUsageLimit() {
+        APIUsageLimitDTO usageDTO = null;
+        try {
+            String url = getAPILimitUrl();
+            APIUsageLimitDTO[] usageDTOArray = restTemplate.getForObject(url, APIUsageLimitDTO[].class);
+            if(usageDTOArray.length == 1)
+                usageDTO = usageDTOArray[0];
+        } catch (APILimitExceededException | RestException ex) {
+            System.err.println("RestException caught: " + ex.getMessage());
+        }
+        
+        return usageDTO;
     }
 }

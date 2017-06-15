@@ -1,8 +1,9 @@
 package com.setu.hsapiassistance.service.api.http;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.InputStreamReader;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -12,15 +13,16 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class RestTemplate {
    
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private final long MINIMUM_DELAY_TIME = 2000;
     private final long MAXIMUM_DELAY_TIME = 10000;
+    private final int STATUS_CODE_API_LIMIT_EXCEEDED = 429;
 
     public RestTemplate() {
         objectMapper = new ObjectMapper();
     }
 
-    public <T extends Object> T getForObject(String url, Class<T> responseType) throws RestException {
+    public <T extends Object> T getForObject(String url, Class<T> responseType) throws RestException, APILimitExceededException {
 //        System.out.println("Url to connect: " + url);
         try {
             String responseString = getResponseString(url);
@@ -35,18 +37,24 @@ public class RestTemplate {
         }
     }
    
-    private String getResponseString(String url){
+    private String getResponseString(String url) throws APILimitExceededException{
         return getResponseString(url, MINIMUM_DELAY_TIME);
     }
    
-    private String getResponseString(String url, long retryIn){
+    private String getResponseString(String url, long retryIn) throws APILimitExceededException{
         String responseString = null;
        
         try {
-            responseString = Request.Get(url)
+            HttpResponse response = Request.Get(url)
                     .connectTimeout(60000)
                     .socketTimeout(60000)
-                    .execute().returnContent().asString();
+                    .execute().returnResponse();
+            int statusCode = getStatusCode(response);
+            
+            if(statusCode == STATUS_CODE_API_LIMIT_EXCEEDED)
+                throw new APILimitExceededException();
+            
+            responseString = getContent(response);
         } catch (IOException ex) {
 //            System.out.println("Exception caught: " + ex.getMessage());
             try {
@@ -64,6 +72,26 @@ public class RestTemplate {
         }
        
         return responseString;
+    }
+    
+    private int getStatusCode(HttpResponse response){
+        return response.getStatusLine().getStatusCode();
+    }
+    
+    private String getContent(HttpResponse response) throws IOException{
+        String content;
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
+            String line;
+            StringBuilder sBuilder = new StringBuilder();
+            while((line=bReader.readLine()) != null){
+                sBuilder.append(line);
+            }   content = sBuilder.toString();
+        }
+        
+        if(content==null || content.length() == 0)
+            return null;
+        else
+            return content;
     }
 
     /**
