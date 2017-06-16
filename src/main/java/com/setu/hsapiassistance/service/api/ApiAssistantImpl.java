@@ -39,7 +39,7 @@ public class ApiAssistantImpl implements ApiAssistant{
             String url = getContactByEmailUrl(email);
             contact = restTemplate.getForObject(url, ContactDTO.class);
         } catch (RestException ex) {
-            System.err.println("RestException caught: " + ex.getMessage());
+//            System.err.println("RestException caught: " + ex.getMessage());
         }
         
         return contact;
@@ -62,7 +62,7 @@ public class ApiAssistantImpl implements ApiAssistant{
             String url = getEmailEventListUrl(email, offset);
             emailEventList = restTemplate.getForObject(url, EmailEventListDTO.class);
         } catch (RestException ex) {
-            System.err.println("RestException caught: " + ex.getMessage());
+//            System.err.println("RestException caught: " + ex.getMessage());
         }
         
         if(emailEventList!=null && emailEventList.isHasMore()){
@@ -87,7 +87,7 @@ public class ApiAssistantImpl implements ApiAssistant{
             String url = getCampaignUrl(appId, campaignId);
             campaign = restTemplate.getForObject(url, CampaignDTO.class);
         } catch (RestException ex) {
-            System.err.println("RestException caught: " + ex.getMessage());
+//            System.err.println("RestException caught: " + ex.getMessage());
         }
         
         if(campaign != null)
@@ -107,7 +107,7 @@ public class ApiAssistantImpl implements ApiAssistant{
             if(contactsMap != null)
                 contacts = contactsMap.get("contacts");
         } catch (RestException ex) {
-            System.err.println("RestException caught: " + ex.getMessage());
+//            System.err.println("RestException caught: " + ex.getMessage());
         }
         
         return contacts;
@@ -119,7 +119,7 @@ public class ApiAssistantImpl implements ApiAssistant{
     
     private String  getEmailEventListUrl(String email, String offset){
         String offsetToAppend = (offset==null) ? "":"&offset="+offset;
-        return BASE_URL + "/email/public/v1/events" + "?hapikey=" + apiKey + "&recipient=" + email + offsetToAppend;
+        return BASE_URL + "/email/public/v1/events" + "?hapikey=" + apiKey + "&recipient=" + email + "&limit=1000" + offsetToAppend;
     }
     
     private String getCampaignUrl(Integer appId, Long campaignId){
@@ -143,7 +143,7 @@ public class ApiAssistantImpl implements ApiAssistant{
             if(usageDTOArray.length == 1)
                 usageDTO = usageDTOArray[0];
         } catch (APILimitExceededException | RestException ex) {
-            System.err.println("RestException caught: " + ex.getMessage());
+//            System.err.println("RestException caught: " + ex.getMessage());
         }
         
         return usageDTO;

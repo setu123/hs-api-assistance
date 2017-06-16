@@ -8,15 +8,14 @@ package com.setu.hsapiassistance.service;
 import com.setu.hsapiassistance.model.history.History;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * @date May 7, 2017
@@ -25,7 +24,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 public class ReportService {
 
     Workbook createReport(List<History> histories) {
-        Workbook wb = new HSSFWorkbook();
+        Workbook wb = new XSSFWorkbook();
         //Workbook wb = new XSSFWorkbook();
         CreationHelper createHelper = wb.getCreationHelper();
         Sheet sheet = wb.createSheet("new sheet");

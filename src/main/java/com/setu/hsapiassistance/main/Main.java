@@ -1,6 +1,7 @@
 package com.setu.hsapiassistance.main;
 
 import com.setu.hsapiassistance.model.APIUsageLimitDTO;
+import com.setu.hsapiassistance.model.HSUtil;
 import com.setu.hsapiassistance.service.ApiAssistanceService;
 import com.setu.hsapiassistance.service.api.http.APILimitExceededException;
 import java.util.Date;
@@ -31,6 +32,10 @@ public class Main {
             if (params.get("key") == null) {
                 System.out.println("Api key is missing. Please try again");
                 System.exit(0);
+            }
+            
+            if(params.get("debug") != null){
+                HSUtil.DEBUG = true;
             }
             
             service = new ApiAssistanceService(params.get("key"));
@@ -64,7 +69,7 @@ public class Main {
     
     private static void showUsageLimitExceedMessage(ApiAssistanceService service){
         APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
-        System.out.println("API usage limit has been exceeded for the day. Limit will be reset at " + new Date(usageDTO.getResetsAt()));
+        System.out.println("API usage limit has been exceeded for the day. Limit will be reset at " + new Date(usageDTO.getResetsAt()) + ", name: " + usageDTO.getName());
     }
     
     private static void printElapsedTime(Date startTime){
