@@ -6,6 +6,9 @@ package com.setu.hsapiassistance.service.api.http;
  * @author setu
  */
 public class RestException extends Exception{
+    public RestException(String message) {
+        super(message);
+    }
 
     public RestException(Throwable cause) {
         super(cause);

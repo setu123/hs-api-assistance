@@ -4,6 +4,7 @@ import com.setu.hsapiassistance.model.HSUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -18,6 +19,8 @@ public class RestTemplate {
     private final long MINIMUM_DELAY_TIME = 2000;
     private final long MAXIMUM_DELAY_TIME = 10000;
     private final int STATUS_CODE_API_LIMIT_EXCEEDED = 429;
+    private final String ERROR_POLICY_NAME = "policyName";
+    private final String ERROR_POLICY_VALUE_SECONDLY = "SECONDLY";
 
     public RestTemplate() {
         objectMapper = new ObjectMapper();
@@ -54,18 +57,30 @@ public class RestTemplate {
                     .connectTimeout(60000)
                     .socketTimeout(60000)
                     .execute().returnResponse();
+            
             int statusCode = getStatusCode(response);
+            responseString = getContent(response);
 
             if (statusCode == STATUS_CODE_API_LIMIT_EXCEEDED) {
+                String policyName;
+                if (responseString != null) {
+                    Map errorResponse = getObjectMapper().readValue(responseString, Map.class);
+                    policyName = (String) errorResponse.get(ERROR_POLICY_NAME);
+                    if(policyName!=null && policyName.equals(ERROR_POLICY_VALUE_SECONDLY))
+                        return getResponseString(url, retryIn);
+                }
+
                 if (HSUtil.DEBUG) {
-                    System.err.println("APILimitExceededException caught, url: " + url + ", statusCode: " + statusCode);
+                    System.err.println("APILimitExceededException caught, url: " + url + ", statusCode: " + statusCode + responseString);
                 }
                 throw new APILimitExceededException();
             }
 
-            responseString = getContent(response);
         } catch (IOException ex) {
-//            System.out.println("Exception caught: " + ex.getMessage());
+            if (HSUtil.DEBUG) {
+                System.err.println("IOException caught, url: " + url + ", will retry in: " + retryIn);
+            }
+            
             try {
                 Thread.sleep(retryIn);
             } catch (InterruptedException ex1) {

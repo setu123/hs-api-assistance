@@ -172,6 +172,10 @@ public class HistoryFinderService {
             }
 
             CampaignDTO campaignDTO = apiAssistant.getCampaign(emailEvent.getAppId(), emailEvent.getEmailCampaignId());
+            
+            if(campaignDTO == null)
+                continue;
+            
             emailEvent.setCampaignName(campaignDTO.getName());
             EmailEventHistory history = new EmailEventHistory();
             history.setDate(emailEvent.getCreated());

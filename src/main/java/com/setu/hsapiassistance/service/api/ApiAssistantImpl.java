@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.jackson.map.type.CollectionType;
-import org.codehaus.jackson.map.type.TypeFactory;
 
 /**
  * @date May 4, 2017
@@ -24,7 +22,7 @@ public class ApiAssistantImpl implements ApiAssistant{
     
     private final String apiKey;
     private static final String BASE_URL = "http://api.hubapi.com";
-    private Map<String, CampaignDTO> campaignCache;
+    private final Map<String, CampaignDTO> campaignCache;
 
     public ApiAssistantImpl(String apiKey) {
         this.apiKey = apiKey;
@@ -135,16 +133,16 @@ public class ApiAssistantImpl implements ApiAssistant{
     }
 
     @Override
-    public APIUsageLimitDTO getAPIUsageLimit() {
+    public APIUsageLimitDTO getAPIUsageLimit() throws APILimitExceededException {
         APIUsageLimitDTO usageDTO = null;
         try {
-            String url = getAPILimitUrl();
+        String url = getAPILimitUrl();
             APIUsageLimitDTO[] usageDTOArray = restTemplate.getForObject(url, APIUsageLimitDTO[].class);
-            if(usageDTOArray.length == 1)
+            if(usageDTOArray!=null && usageDTOArray.length == 1)
                 usageDTO = usageDTOArray[0];
-        } catch (APILimitExceededException | RestException ex) {
-//            System.err.println("RestException caught: " + ex.getMessage());
-        }
+        } catch (RestException ex) {
+            System.err.println("Fatal error. Unexpected exception caught: " + ex.getMessage());
+            }
         
         return usageDTO;
     }

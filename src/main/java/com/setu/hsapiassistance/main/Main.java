@@ -60,16 +60,26 @@ public class Main {
     }
     
     private static void showUsage(ApiAssistanceService service){
-        APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
-        String usage = "Daily limit: " + usageDTO.getUsageLimit() + "\n";
-        usage += "Current usage: " + usageDTO.getCurrentUsage() + "\n";
-        usage += "Next reset at: " + new Date(usageDTO.getResetsAt());
-        System.out.println(usage);
+        try{
+            APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
+            if(usageDTO != null){
+                String usage = "Daily limit: " + usageDTO.getUsageLimit() + "\n";
+                usage += "Current usage: " + usageDTO.getCurrentUsage() + "\n";
+                usage += "Next reset at: " + new Date(usageDTO.getResetsAt());
+                System.out.println(usage);
+            }
+        }catch(APILimitExceededException ex){
+            System.out.println("You have reached your daily limit");
+        }
     }
     
     private static void showUsageLimitExceedMessage(ApiAssistanceService service){
-        APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
-        System.out.println("API usage limit has been exceeded for the day. Limit will be reset at " + new Date(usageDTO.getResetsAt()) + ", name: " + usageDTO.getName());
+        try{
+            APIUsageLimitDTO usageDTO = service.getAPIUsageLimit();
+            System.out.println("API usage limit has been exceeded for the day. Limit will be reset at " + new Date(usageDTO.getResetsAt()) + ", name: " + usageDTO.getName());
+        }catch(APILimitExceededException ex){
+            System.out.println("You have reached your daily limit");
+        }
     }
     
     private static void printElapsedTime(Date startTime){

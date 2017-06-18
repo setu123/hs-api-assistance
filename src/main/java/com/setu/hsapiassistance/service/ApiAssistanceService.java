@@ -57,7 +57,7 @@ public class ApiAssistanceService {
         return generateReport(histories);
     }
     
-    public APIUsageLimitDTO getAPIUsageLimit(){
+    public APIUsageLimitDTO getAPIUsageLimit() throws APILimitExceededException{
         ApiAssistant apiAssistant = new ApiAssistantImpl(apiKey);
         return apiAssistant.getAPIUsageLimit();
     }
