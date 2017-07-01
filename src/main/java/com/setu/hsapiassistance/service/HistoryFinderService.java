@@ -41,7 +41,7 @@ public class HistoryFinderService {
     public List<History> getAllHistory(String email) throws APILimitExceededException {
         ContactDTO contactDTO = apiAssistant.getContactByEmail(email);
         
-        if(contactDTO != null)
+        if(contactDTO != null && contactDTO.getEmail() != null)
             return getAllHistory(contactDTO);
         else
             return new ArrayList<>();
